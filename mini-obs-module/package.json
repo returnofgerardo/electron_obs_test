@@ -1,0 +1,16 @@
+{
+  "name": "mini-obs",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Gerardo",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cmake-js": "^7.3.0",
+    "node-addon-api": "^8.3.0"
+  }
+}

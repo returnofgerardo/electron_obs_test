@@ -19,6 +19,7 @@
     "electron": "^34.0.1"
   },
   "dependencies": {
+    "mini-obs": "file:mini-obs-module",
     "node-addon-api": "^8.3.0"
   }
 }

@@ -7,11 +7,10 @@
   "type": "commonjs",
   "main": "mini-obs.js",
   "scripts": {
-    "install": "cmake-js compile",
+    "install": "cmake-js compile --out ./build_root/build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bindings": "^1.5.0",
     "cmake-js": "^7.3.0",
     "node-addon-api": "^8.3.0"
   },

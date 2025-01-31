@@ -1,7 +1,7 @@
-const obs_native = require("bindings")("mini-obs");
+const obs_native = require("./build_root/build/Release/mini-obs");
 
-exports.test = () => "testing";
+exports.startup = obs_native.startup;
+exports.resetVideo = obs_native.resetVideo;
+exports.shutdown = obs_native.shutdown;
 exports.getNAPIVersion = obs_native.getNAPIVersion;
-
-
 

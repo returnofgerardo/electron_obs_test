@@ -27,11 +27,10 @@ endif()
 # using add_subdirectory with obs-studio doesn't work out of the box, so link the stuff we need manually for now
 find_library(LIB_OBS obs PATHS ${OBS_BUILD_PATH}/libobs/${CMAKE_BUILD_TYPE})
 
-# Paths that need to be copied
+# OBS dependencies that need to be copied
 set(OBS_BIN_DIR "${OBS_BUILD_PATH}/rundir/${CMAKE_BUILD_TYPE}/bin/64bit")
 set(OBS_DATA_DIR "${OBS_BUILD_PATH}/rundir/${CMAKE_BUILD_TYPE}/data")
 set(OBS_PLUGIN_DIR "${OBS_BUILD_PATH}/rundir/${CMAKE_BUILD_TYPE}/obs-plugins")
-
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_OBS})
 target_include_directories(${PROJECT_NAME} PRIVATE libs/obs-studio/libobs)
@@ -44,8 +43,8 @@ endif()
 #https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-E
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different  ${OBS_BIN_DIR} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
-    # have to follow obs's directory conventions when using libobs, otherwise it leads additional work.
-    # long term would be better to pass some defines to our headers with more sane paths and use obs_add_module_path
+    # have to follow obs's directory conventions when using libobs to save ourselves some additional work due to hardcoded paths
+    # long term would be possible to pass custom path defines to our source files and use obs_add_module_path, though that might not be enough
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different  ${OBS_DATA_DIR} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/../../data
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different  ${OBS_PLUGIN_DIR} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/../../obs-plugins
 )

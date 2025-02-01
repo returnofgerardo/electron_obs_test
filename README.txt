@@ -19,5 +19,5 @@ steps:
 Call 'npm start'  
 
 Press the OBS Startup button to run obs_startup() in libobs  
-The Reset Video button calls obs_reset_video(), but this fails to load the graphics module at the moment.  
+The Reset Video button calls obs_reset_video(). This "succeeds", but the graphics thread it spawns fails to load a needed module 
 

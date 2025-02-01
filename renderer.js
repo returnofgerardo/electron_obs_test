@@ -10,20 +10,26 @@
 const startupBtn = document.getElementById('startup_btn');
 const resetVidBtn = document.getElementById('resetv_btn');
 
+const handleOBSResponse = (button, success) => {
+    if (success)
+    {
+        button.innerText = 'Success!';
+    }
+    else
+    {
+        // Let user try again
+        button.disabled = false;
+    }
+};
+
 startupBtn.addEventListener('click', async (event) => {
     event.target.disabled = true;
     const result = await window.ipc.obsStartup();
-    if (!result)
-    {
-        event.target.disabled = false;
-    }
+    handleOBSResponse(event.target, result);
 });
 
 resetVidBtn.addEventListener('click', async (event) => {
     event.target.disabled = true;
     const result = await window.ipc.obsResetVideo();
-    if (!result)
-    {
-        event.target.disabled = false;
-    }
+    handleOBSResponse(event.target, result);
 });

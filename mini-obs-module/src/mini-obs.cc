@@ -1,6 +1,10 @@
 #include <napi.h>
 #include <obs.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace Napi;
 static Number GetNAPIVersion(const CallbackInfo& info)
 {
@@ -37,8 +41,47 @@ static void log_handler(int log_level, const char *format, va_list args, void *p
 	}
 }
 
+static wchar_t obsPath[MAX_PATH];
+// A way to let obs load stuff it needs without changing the working directory permanently
+// Windows only for now
+struct TempCWDSwitch
+{
+    wchar_t restorePath[MAX_PATH];
+    TempCWDSwitch(wchar_t* targetPath)
+    {
+#ifdef _WIN32
+        GetCurrentDirectoryW(MAX_PATH, restorePath);
+        SetCurrentDirectoryW(targetPath);
+#endif
+    }
+
+    ~TempCWDSwitch()
+    {
+#ifdef _WIN32
+        SetCurrentDirectoryW(restorePath);
+#endif
+    }
+};
+
 static Boolean Startup(const CallbackInfo& info)
 {
+#ifdef _WIN32
+    // Store path to obs dll for later use
+    HMODULE obsModuleHandle;
+	if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<LPCWSTR>(obs_startup), &obsModuleHandle))
+	{
+        DWORD pathLength = GetModuleFileNameW(obsModuleHandle, obsPath, MAX_PATH);
+        if (pathLength > 0)
+        {
+            wchar_t* fileNameStart = wcsrchr(obsPath, L'\\');
+            if (fileNameStart)
+            {
+                fileNameStart[0] = L'\0';
+            }
+        }
+	}
+#endif //_WIN32
+
     base_set_log_handler(&log_handler, nullptr);
     // https://docs.obsproject.com/frontends#initialization-and-shutdown
     bool success = obs_startup("en-US", nullptr, nullptr);
@@ -52,7 +95,7 @@ static obs_video_info GetVideoDefaults()
     obs_video_info ovi{};
     ovi.graphics_module = OpenGL_Module;
     ovi.fps_num = 1;
-    ovi.fps_den = 1;
+    ovi.fps_den = 60;
     ovi.base_width = 1280;
     ovi.base_height = 720;
     ovi.output_width = ovi.base_width;
@@ -63,6 +106,10 @@ static obs_video_info GetVideoDefaults()
 
 static Boolean ResetVideo(const CallbackInfo& info)
 {
+    // TODO: This temporary directory change is not enough to fix all file loading in OBS (graphics thread loads a dll for example)
+    // Might just need run obs code in its own process.
+    TempCWDSwitch pushd(obsPath);
+
     obs_video_info ovi = GetVideoDefaults();
     // Ok to pass stack ptr. Gets copied
     int resultCode = obs_reset_video(&ovi);
